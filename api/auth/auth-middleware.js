@@ -9,6 +9,7 @@ const Users = require('../users/users-model');
   }
 */
 function restricted(req, res, next) {
+  console.log('restricted ping')
   if(req.session.loggedInUser == null){
     next({status: 401, message: 'You shall not pass!'})
     return;
