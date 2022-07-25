@@ -1,6 +1,18 @@
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
+const session = require('express-session');
+const sessionConfig = {
+  name: 'chocolatechip',
+  secret: "it's a secret to everybody!",
+  cookie: {
+    maxAge: 1000 * 60 *60,
+    secure: false,
+    httpOnly: true
+  },
+  resave: false,
+  saveUninitialized: false
+}
 
 /**
   Do what needs to be done to support sessions with the `express-session` package!
@@ -20,6 +32,14 @@ const server = express();
 server.use(helmet());
 server.use(express.json());
 server.use(cors());
+server.use(session(sessionConfig));
+
+
+const usersRouter = require('./users/users-router');
+const authRouter = require('./auth/auth-router');
+
+server.use('/api/users', usersRouter);
+server.use('/api/auth', authRouter);
 
 server.get("/", (req, res) => {
   res.json({ api: "up" });
@@ -27,7 +47,7 @@ server.get("/", (req, res) => {
 
 server.use((err, req, res, next) => { // eslint-disable-line
   res.status(err.status || 500).json({
-    message: err.message,
+    message: err.message || 'internal server error',
     stack: err.stack,
   });
 });
